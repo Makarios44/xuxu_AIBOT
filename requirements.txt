@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+botbuilder-core
+botbuilder-schema
+aiosqlite
+SQLModel
+openai
+python-dotenv
+aiohttp
+azure-identity
+msgraph-sdk
