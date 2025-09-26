@@ -241,7 +241,48 @@ async def healthz():
 @app.get("/")
 async def root():
     return {"status": "ok", "service": "Xuxu Bot API"}
+@app.post("/api/messages")
+async def messages(req: Request):
+    """Endpoint principal para mensagens do Teams"""
+    print("=== NOVA REQUISIÇÃO DO TEAMS ===")
+    
+    # Debug dos headers
+    headers = dict(req.headers)
+    print(f"Headers: { {k: v for k, v in headers.items() if 'authorization' in k.lower()} }")
+    
+    try:
+        body = await req.json()
+        print(f"Body type: {body.get('type')}")
+        print(f"Body text: {body.get('text')}")
+    except json.JSONDecodeError:
+        print("Health check - sem JSON")
+        return Response(content="", status_code=200)
+    
+    try:
+        activity = Activity().deserialize(body)
+        auth_header = req.headers.get("Authorization", "")
+        
+        print(f"Activity type: {activity.type}")
+        print(f"Auth header present: {bool(auth_header)}")
+        print(f"APP_ID being used: {APP_ID}")
 
+        async def aux_func(turn_context: TurnContext):
+            await bot.on_turn(turn_context)
+
+        response = await adapter.process_activity(activity, auth_header, aux_func)
+        
+        if response:
+            print(f"Resposta enviada: {response.status}")
+            return JSONResponse(content=response.body, status_code=response.status)
+        
+        print("Atividade processada sem resposta específica")
+        return Response(status_code=201)
+        
+    except Exception as e:
+        print(f"ERRO DETALHADO: {e}")
+        import traceback
+        traceback.print_exc()
+        return Response(status_code=200)
 
 @app.get("/memory/{conversation_id}")
 async def read_memory(conversation_id: str):
