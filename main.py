@@ -237,6 +237,10 @@ async def messages(req: Request):
 @app.get("/healthz")
 async def healthz():
     return {"status": "ok", "service": "Xuxu Bot API"}
+    
+@app.get("/")
+async def root():
+    return {"status": "ok", "service": "Xuxu Bot API"}
 
 
 @app.get("/memory/{conversation_id}")
