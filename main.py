@@ -22,6 +22,8 @@ from calendar_utils import (
     listar_eventos_ms
 )
 from token_utils import refresh_google_token, refresh_ms_token
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 load_dotenv()
 
@@ -194,8 +196,6 @@ class SimpleTeamsBot:
 
 bot = SimpleTeamsBot()
 
-
-import logging
 
 @app.get("/healthz")
 async def healthz():
