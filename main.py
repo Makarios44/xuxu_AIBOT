@@ -197,43 +197,6 @@ bot = SimpleTeamsBot()
 
 import logging
 
-@app.post("/api/messages")
-async def messages(req: Request):
-    """Endpoint principal para mensagens do Teams"""
-    # Log da requisição recebida
-    logging.info(f"Recebida requisição de: {req.client.host}")
-    
-    try:
-        body = await req.json()
-        logging.info(f"JSON recebido: {body}")
-    except json.JSONDecodeError:
-        logging.warning("Requisição sem JSON válido - provavelmente health check")
-        return Response(content="", status_code=200)
-    
-    try:
-        activity = Activity().deserialize(body)
-        auth_header = req.headers.get("Authorization", "")
-        
-        logging.info(f"Tipo de atividade: {activity.type}")
-
-        async def aux_func(turn_context: TurnContext):
-            await bot.on_turn(turn_context)
-
-        response = await adapter.process_activity(activity, auth_header, aux_func)
-        
-        if response:
-            logging.info(f"Resposta enviada: {response.status}")
-            return JSONResponse(content=response.body, status_code=response.status)
-        
-        logging.info("Atividade processada sem resposta específica")
-        return Response(status_code=201)
-        
-    except Exception as e:
-        logging.error(f"Erro no processamento: {e}")
-        # Importante: sempre retorna 200 para webhooks do Teams
-        return Response(status_code=200)
-
-
 @app.get("/healthz")
 async def healthz():
     return {"status": "ok", "service": "Xuxu Bot API"}
